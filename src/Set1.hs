@@ -9,7 +9,10 @@ import           GHC.Word        (Word8)
 
 data Error = NotHex Char
            | UnevenNumberOfHexDigits
-             deriving Show
+             deriving (Eq, Show)
+
+challenge1 :: String -> Either Error String
+challenge1 = (fmap bsToBase64) . hexToByteString
 
 hexToByteString :: String -> Either Error ByteString
 hexToByteString s =
@@ -46,5 +49,5 @@ top :: Int -> Word8 -> Word8
 top n x = shift x (n - 8)
 
 bottomNTo6 :: Int -> Word8 -> Word8
-bottomNTo6 n x = shift (x .&. (floor (2 ** (fromIntegral n)) - 1))
+bottomNTo6 n x = shift (x .&. (floor (2 ** (fromIntegral n) :: Double) - 1))
                        (6 - n)
