@@ -1,9 +1,10 @@
 module Set1Test where
 
-import           Test.Tasty       (TestTree, testGroup)
-import           Test.Tasty.HUnit (testCase, (@?=))
+import           Data.ByteString.Char8 (pack)
+import           Test.Tasty            (TestTree, testGroup)
+import           Test.Tasty.HUnit      (testCase, (@?=))
 
-import Set1 (challenge1)
+import           Set1                  (challenge1, hexToByteString)
 
 test_Set1 :: TestTree
 test_Set1 =
@@ -20,5 +21,8 @@ challenge1Expected = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2
 challenge1Tests :: TestTree
 challenge1Tests =
   testGroup "Challenge1" [
-    testCase "Answer" $ challenge1 challenge1Input @?= Right challenge1Expected
+    testCase "Answer" $
+      challenge1 challenge1Input @?= Right challenge1Expected
+  , testCase "hexToByteString" $
+      hexToByteString challenge1Input @?= Right (pack "I'm killing your brain like a poisonous mushroom")
   ]
