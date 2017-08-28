@@ -16,10 +16,10 @@ challenge1 = (fmap bsToBase64) . hexToByteString
 
 hexToByteString :: String -> Either Error ByteString
 hexToByteString s =
-  let s' = bool ('0' : s) s (even (length s))
-      hexDigitsToWord8 [a,b] = Right $ shift a 4 .|. b
+  let hexDigitsToWord8 [a,b] = Right $ shift a 4 .|. b
+      hexDigitsToWord8 [a]   = hexDigitsToWord8 [a, 0]
       hexDigitsToWord8 _     = Left UnevenNumberOfHexDigits
-   in fmap (pack . concat . traverse hexDigitsToWord8 . chunksOf 2) $ traverse hexCharToWord8 s'
+   in fmap (pack . concat . traverse hexDigitsToWord8 . chunksOf 2) $ traverse hexCharToWord8 s
 
 hexCharToWord8 :: Char -> Either Error Word8
 hexCharToWord8 c
