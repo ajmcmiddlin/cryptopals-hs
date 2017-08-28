@@ -5,6 +5,7 @@ import           Data.Bool       (bool)
 import           Data.ByteString (ByteString, pack, unpack)
 import           Data.Char       (ord)
 import           Data.List.Split (chunksOf)
+import           Data.Monoid     ((<>))
 import           GHC.Word        (Word8)
 
 data Error = NotHex Char
@@ -29,17 +30,16 @@ hexCharToWord8 c
 
 bsToBase64 :: ByteString -> String
 bsToBase64 =
-  let threeBytesToB64 :: [Word8] -> [Char]
-      threeBytesToB64 [a,b,c] =
-        [ sixBitsToB64 (top 6 a)
-        , sixBitsToB64 (bottomNTo6 2 a .|. top 4 b)
-        , sixBitsToB64 (bottomNTo6 4 b .|. top 2 c)
-        , sixBitsToB64 (bottomNTo6 6 c)
+  let bytesToB64 [a,b,c] = fmap sixBitsToB64
+        [ (top 6 a)
+        , (bottomNTo6 2 a .|. top 4 b)
+        , (bottomNTo6 4 b .|. top 2 c)
+        , (bottomNTo6 6 c)
         ]
-      threeBytesToB64 _ = error "TODO: toB64 require padding"
-      -- threeBytesToB64 [a,b] = threeBytesToB64 [a,b,0]
-      -- threeBytesToB64 [a] = threeBytesToB64 [a,0,0]
-  in concat . fmap threeBytesToB64 . chunksOf 3 . unpack
+      bytesToB64 [a,b] = (<> "=") . take 3 $ bytesToB64 [a,b,0]
+      bytesToB64 [a] = (<> "==") . take 2 $ bytesToB64 [a,0,0]
+      bytesToB64 _ = error "You got an empty chunk, or >3 chunks. Sorry?"
+  in concat . fmap bytesToB64 . chunksOf 3 . unpack
 
 sixBitsToB64 :: Word8 -> Char
 sixBitsToB64 w8 =
