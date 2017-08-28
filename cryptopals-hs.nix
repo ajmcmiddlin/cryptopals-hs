@@ -5,7 +5,7 @@ mkDerivation {
   version = "0.1.0.0";
   src = ./.;
   libraryHaskellDepends = [ base bytestring split ];
-  testHaskellDepends = [ base tasty tasty-hunit ];
+  testHaskellDepends = [ base bytestring tasty tasty-hunit ];
   homepage = "https://github.com/ajmccluskey/cryptopals-hs";
   description = "Solutions to cryptopals challenges";
   license = stdenv.lib.licenses.bsd3;
