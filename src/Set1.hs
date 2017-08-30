@@ -18,7 +18,9 @@ challenge1 = (fmap bsToBase64) . hexToByteString
 hexToByteString :: String -> Either Error ByteString
 hexToByteString s =
   let hexDigitsToWord8 [a,b] = Right $ shift a 4 .|. b
-      hexDigitsToWord8 [a]   = hexDigitsToWord8 [a, 0]
+      -- If we have an odd number of hex chars the last chunk will have only one element
+      -- so we need to pad the 4 most significant bits with 0
+      hexDigitsToWord8 [a]   = hexDigitsToWord8 [0, a]
       hexDigitsToWord8 _     = Left UnevenNumberOfHexDigits
    in fmap (pack . concat . traverse hexDigitsToWord8 . chunksOf 2) $ traverse hexCharToWord8 s
 
