@@ -1,8 +1,10 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Set1 where
 
 import           Data.Bits       (shift, (.&.), (.|.))
-import           Data.Bool       (bool)
 import           Data.ByteString (ByteString, pack, unpack)
+import qualified Data.ByteString as LBS
 import           Data.Char       (ord)
 import           Data.List.Split (chunksOf)
 import           Data.Monoid     ((<>))
@@ -43,13 +45,34 @@ bsToBase64 =
       bytesToB64 _ = error "You got an empty chunk, or >3 chunks. Sorry?"
   in concat . fmap bytesToB64 . chunksOf 3 . unpack
 
+bsToHex :: ByteString -> String
+bsToHex "\NUL" = "0"
+bsToHex bs =
+  let f b s = foldr (:) s $ byteToHex b
+   in LBS.foldr f "" bs
+
+byteToHex :: Word8 -> [Char]
+byteToHex b =
+   fmap bottom4BitsToHex [top 4 b, b]
+
+bottom4BitsToHex :: Word8 -> Char
+bottom4BitsToHex =
+  let hexChars = ['0'..'9'] <> ['a'..'f']
+   in (hexChars !!) . fromIntegral . bottom 4
+
 sixBitsToB64 :: Word8 -> Char
-sixBitsToB64 w8 =
-  (['A'..'Z'] ++ ['a'..'z'] ++ ['0'..'9'] ++ ['+','-']) !! fromIntegral w8
+sixBitsToB64 =
+  let base64Chars = ['A'..'Z'] <> ['a'..'z'] <> ['0'..'9'] <> ['+','-']
+   in (base64Chars !!) . fromIntegral
 
 top :: Int -> Word8 -> Word8
 top n x = shift x (n - 8)
 
+bottom :: Int -> Word8 -> Word8
+bottom n b =
+  let e = fromIntegral n :: Double
+      mask = (floor (2 ** e)) - 1
+   in b .&. mask
+
 bottomNTo6 :: Int -> Word8 -> Word8
-bottomNTo6 n x = shift (x .&. (floor (2 ** (fromIntegral n) :: Double) - 1))
-                       (6 - n)
+bottomNTo6 n b = shift (bottom n b) (6 - n)
