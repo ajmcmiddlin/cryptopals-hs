@@ -15,7 +15,8 @@ import           Set1                  (bsToHex, canonicalHex, challenge1,
 test_Set1 :: TestTree
 test_Set1 =
   testGroup "Set1" [
-    challenge1Tests
+    hexTests
+  , challenge1Tests
   ]
 
 challenge1Input :: String
@@ -27,6 +28,17 @@ challenge1Expected = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2
 hexString :: MonadGen m => m String
 hexString = Gen.list (Range.linear 0 100) Gen.hexit
 
+hexTests :: TestTree
+hexTests =
+  testGroup "Hex" [
+    testProperty "hex round trip" . property $ do
+      hs <- canonicalHex <$> forAll hexString
+      fmap bsToHex (hexToByteString hs) === Right hs
+  , testProperty "ByteString to hex round trip" . property $ do
+      bs <- forAll (Gen.bytes (Range.linear 0 1024))
+      hexToByteString (bsToHex bs) === Right bs
+  ]
+
 challenge1Tests :: TestTree
 challenge1Tests =
   testGroup "Challenge1" [
@@ -34,10 +46,4 @@ challenge1Tests =
       challenge1 challenge1Input @?= Right challenge1Expected
   , testCase "hexToByteString" $
       hexToByteString challenge1Input @?= Right (pack "I'm killing your brain like a poisonous mushroom")
-  , testProperty "hex round trip" . property $ do
-      hs <- canonicalHex <$> forAll hexString
-      fmap bsToHex (hexToByteString hs) === Right hs
-  , testProperty "ByteString to hex round trip" . property $ do
-      bs <- forAll (Gen.bytes (Range.linear 0 1024))
-      hexToByteString (bsToHex bs) === Right bs
   ]
