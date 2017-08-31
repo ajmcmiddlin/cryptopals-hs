@@ -37,4 +37,7 @@ challenge1Tests =
   , testProperty "hex round trip" . property $ do
       hs <- canonicalHex <$> forAll hexString
       fmap bsToHex (hexToByteString hs) === Right hs
+  , testProperty "ByteString to hex round trip" . property $ do
+      bs <- forAll (Gen.bytes (Range.linear 0 1024))
+      hexToByteString (bsToHex bs) === Right bs
   ]
