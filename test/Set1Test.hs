@@ -9,7 +9,8 @@ import           Test.Tasty            (TestTree, testGroup)
 import           Test.Tasty.Hedgehog   (testProperty)
 import           Test.Tasty.HUnit      (testCase, (@?=))
 
-import           Set1                  (challenge1, hexToByteString, bsToHex)
+import           Set1                  (bsToHex, canonicalHex, challenge1,
+                                        hexToByteString)
 
 test_Set1 :: TestTree
 test_Set1 =
@@ -33,7 +34,7 @@ challenge1Tests =
       challenge1 challenge1Input @?= Right challenge1Expected
   , testCase "hexToByteString" $
       hexToByteString challenge1Input @?= Right (pack "I'm killing your brain like a poisonous mushroom")
-  , testProperty "hex round trip" (property $ do
-      hs <- forAll hexString
-      Right hs === (bsToHex <$> (hexToByteString hs)))
+  , testProperty "hex round trip" . property $ do
+      hs <- canonicalHex <$> forAll hexString
+      fmap bsToHex (hexToByteString hs) === Right hs
   ]

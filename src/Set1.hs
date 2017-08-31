@@ -3,9 +3,10 @@
 module Set1 where
 
 import           Data.Bits       (shift, (.&.), (.|.))
+import           Data.Bool       (bool)
 import           Data.ByteString (ByteString, pack, unpack)
 import qualified Data.ByteString as LBS
-import           Data.Char       (ord)
+import           Data.Char       (ord, toUpper)
 import           Data.List.Split (chunksOf)
 import           Data.Monoid     ((<>))
 import           GHC.Word        (Word8)
@@ -19,12 +20,10 @@ challenge1 = (fmap bsToBase64) . hexToByteString
 
 hexToByteString :: String -> Either Error ByteString
 hexToByteString s =
-  let hexDigitsToWord8 [a,b] = Right $ shift a 4 .|. b
-      -- If we have an odd number of hex chars the last chunk will have only one element
-      -- so we need to pad the 4 most significant bits with 0
-      hexDigitsToWord8 [a]   = hexDigitsToWord8 [0, a]
+  let s' = bool ('0':s) s (even (length s))
+      hexDigitsToWord8 [a,b] = Right $ shift a 4 .|. b
       hexDigitsToWord8 _     = Left UnevenNumberOfHexDigits
-   in fmap (pack . concat . traverse hexDigitsToWord8 . chunksOf 2) $ traverse hexCharToWord8 s
+   in fmap (pack . concat . traverse hexDigitsToWord8 . chunksOf 2) $ traverse hexCharToWord8 s'
 
 hexCharToWord8 :: Char -> Either Error Word8
 hexCharToWord8 c
@@ -50,7 +49,13 @@ bsToHex :: ByteString -> String
 bsToHex "\NUL" = "0"
 bsToHex bs =
   let f b s = foldr (:) s $ byteToHex b
-   in LBS.foldr f "" bs
+   in canonicalHex (LBS.foldr f "" bs)
+
+canonicalHex :: String -> String
+canonicalHex "" = ""
+canonicalHex s = fmap toUpper
+               . (\s' -> bool s' "0" (s' == ""))
+               . dropWhile (== '0') $ s
 
 byteToHex :: Word8 -> [Char]
 byteToHex b =
