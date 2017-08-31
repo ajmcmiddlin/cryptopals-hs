@@ -30,6 +30,7 @@ hexCharToWord8 :: Char -> Either Error Word8
 hexCharToWord8 c
   | c `elem` ['0'..'9'] = Right . fromIntegral $ ord c - ord '0'
   | c `elem` ['a'..'f'] = Right . fromIntegral $ ord c - ord 'a' + 10
+  | c `elem` ['A'..'F'] = Right . fromIntegral $ ord c - ord 'A' + 10
   | otherwise           = Left (NotHex c)
 
 bsToBase64 :: ByteString -> String
