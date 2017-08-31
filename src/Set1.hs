@@ -2,7 +2,7 @@
 
 module Set1 where
 
-import           Data.Bits       (shift, (.&.), (.|.))
+import           Data.Bits       (shift, (.&.), (.|.), xor)
 import           Data.Bool       (bool)
 import           Data.ByteString (ByteString, pack, unpack)
 import qualified Data.ByteString as LBS
@@ -17,6 +17,12 @@ data Error = NotHex Char
 
 challenge1 :: String -> Either Error String
 challenge1 = (fmap bsToBase64) . hexToByteString
+
+challenge2 :: String -> String -> Either Error String
+challenge2 h1 h2 = do
+  bs1 <- hexToByteString h1
+  bs2 <- hexToByteString h2
+  pure . bsToHex . pack $ LBS.zipWith xor bs1 bs2
 
 hexToByteString :: String -> Either Error ByteString
 hexToByteString s =

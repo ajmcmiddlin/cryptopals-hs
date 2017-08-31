@@ -10,13 +10,14 @@ import           Test.Tasty.Hedgehog   (testProperty)
 import           Test.Tasty.HUnit      (testCase, (@?=))
 
 import           Set1                  (bsToHex, canonicalHex, challenge1,
-                                        hexToByteString)
+                                        challenge2, hexToByteString)
 
 test_Set1 :: TestTree
 test_Set1 =
   testGroup "Set1" [
     hexTests
   , challenge1Tests
+  , challenge2Tests
   ]
 
 challenge1Input :: String
@@ -47,3 +48,10 @@ challenge1Tests =
   , testCase "hexToByteString" $
       hexToByteString challenge1Input @?= Right (pack "I'm killing your brain like a poisonous mushroom")
   ]
+
+challenge2Tests :: TestTree
+challenge2Tests =
+  testCase "Challenge2" $
+    let h1 = "1c0111001f010100061a024b53535009181c"
+        h2 = "686974207468652062756c6c277320657965"
+     in challenge2 h1 h2 @?= Right (canonicalHex "746865206b696420646f6e277420706c6179")
