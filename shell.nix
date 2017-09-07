@@ -1,15 +1,6 @@
 { nixpkgs ? import <nixpkgs> {}, compiler ? "default" }:
-
 let
-
   inherit (nixpkgs) pkgs;
-
-  haskellPackages = if compiler == "default"
-                       then pkgs.haskellPackages
-                       else pkgs.haskell.packages.${compiler};
-
-  drv = haskellPackages.callPackage ./cryptopals-hs.nix {};
-
+  cryptopals-hs = import ./default.nix {};
 in
-
-  if pkgs.lib.inNixShell then drv.env else drv
+  if pkgs.lib.inNixShell then cryptopals-hs.env else cryptopals-hs
